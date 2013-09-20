@@ -1,0 +1,131 @@
+/*
+ * Copyright (c) 2013 CNRS/LAAS
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+/*------------------------------------------------------------------------
+ *
+ *                     --  Module Xares-genom -- 
+ *
+ *  Description:
+ *  Creation Date : Fri Sep 20 2013
+ *  Author: Cyril Robin
+ *
+ * ----------------------------------------------------------------------
+ */
+
+module xares
+{
+    number:	    1741;
+    requires:   pom, genPos; 
+    codels_requires: "xares >= 0.1.1", pom;
+    internal_data:	XARES_STR;
+    version:	"0.1";
+	lang: "c++";
+    email: "cyril.robin@laas.fr";
+};
+ 
+
+/****************************************************
+                   IMPORTS/DEFINITIONS 
+ ****************************************************/
+import from pom {
+#include "pomStruct.h"
+};
+
+import from genPos {
+#include "genPosStruct.h"
+};
+
+#include "xaresStruct.h"
+
+/* ---- Module database description ---- */
+typedef struct XARES_STR {
+	
+	xaresInitParams initParams;
+	GENPOS_TRAJ_POINTS path;
+
+} XARES_STR;
+
+/****************************************************
+                       REQUESTS
+ ****************************************************/
+/* Initialize the module, load the models */
+request Init
+{
+    doc:        "Initialize gladys nav_graph and frontier_detector, loading gdal models.";
+    type:       init; // There is only one !
+    exec_task:  Exec;
+    codel_main: xaresInitMain;
+
+    input: 
+        initParams::initParams;
+    input_info: 
+        XARES_POM_POSTER_NAME::"POM Pos poster's name",
+        XARES_REGION_PATH::"Path where to load the environment models",
+        XARES_ROBOTMDL_PATH::"Path where to load the environment models",
+        XARES_DEFAULT_LOGDIR::"Log directory";
+
+    fail_msg: CANNOT_CONNECT, FAILED_CREATION;
+    interrupt_activity: all; // all other request can interrupt
+};
+
+request UpdateModels
+{
+	doc:        "Update the environment knowledge.";
+	type:       exec;
+	exec_task:  Exec;
+	codel_main: xaresUpdateMain;
+
+    fail_msg: FAILED_CREATION;
+
+    input:
+        initParams::initParams;
+};
+
+request FindGoal {
+    doc:            "Find path to Roma";
+    type:           exec;
+	exec_task:      Exec; 
+
+	posters_input:  POM_POS;
+
+    codel_main:         xaresFindGoalMain;
+    fail_reports:       NO_FRONTIER, CANNOT_READ_POM, CANNOT_UPDATE_POSTER; 
+    interrupt_activity: all; 
+};
+
+/****************************************************
+                       POSTER(s)
+ ****************************************************/
+poster Path {
+	update:     auto;
+	data:       path::path;
+	exec_task:  Exec;
+};
+
+/****************************************************
+                       EXEC TASK
+ ****************************************************/
+exec_task Exec {
+	/*period:           1;*/
+	/*delay:            0;*/
+	priority:           150;
+	stack_size:         20000; // in bytes
+	/*codel_task_start:   xaresMainTaskInit;*/
+	/*codel_task_main:    xaresMainTaskMain;*/
+	/*codel_task_end:     xaresMainTaskEnd;*/
+	/*fail_reports: NO_FRONTIER, CANNOT_READ_POM;*/
+};
+

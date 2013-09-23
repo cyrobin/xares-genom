@@ -29,9 +29,9 @@ module xares
 {
     number:	    1741;
     requires:   pom, genPos; 
-    codels_requires: "xares >= 0.1.1", pom;
+    codels_requires: "xares >= 0.2.0","gladys >= 0.2.0", dtm, pom;
     internal_data:	XARES_STR;
-    version:	"0.1";
+    version:	"0.2";
 	lang: "c++";
     email: "cyril.robin@laas.fr";
 };
@@ -42,6 +42,10 @@ module xares
  ****************************************************/
 import from pom {
 #include "pomStruct.h"
+};
+
+import from dtm {
+#include "dtmStruct.h"
 };
 
 import from genPos {
@@ -64,7 +68,7 @@ typedef struct XARES_STR {
 /* Initialize the module, load the models */
 request Init
 {
-    doc:        "Initialize gladys nav_graph and frontier_detector, loading gdal models.";
+    doc:        "Load the initial weight_map and link with the DTM poster.";
     type:       init; // There is only one !
     exec_task:  Exec;
     codel_main: xaresInitMain;
@@ -73,36 +77,22 @@ request Init
         initParams::initParams;
     input_info: 
         XARES_POM_POSTER_NAME::"POM Pos poster's name",
-        XARES_REGION_PATH::"Path where to load the environment models",
-        XARES_ROBOTMDL_PATH::"Path where to load the environment models",
+        XARES_DTM_POSTER_NAME::"DTM poster's name",
         XARES_DEFAULT_LOGDIR::"Log directory";
 
     fail_msg: CANNOT_CONNECT, FAILED_CREATION;
     interrupt_activity: all; // all other request can interrupt
 };
 
-request UpdateModels
-{
-	doc:        "Update the environment knowledge.";
-	type:       exec;
-	exec_task:  Exec;
-	codel_main: xaresUpdateMain;
-
-    fail_msg: FAILED_CREATION;
-
-    input:
-        initParams::initParams;
-};
-
 request FindGoal {
-    doc:            "Find path to Roma";
+    doc:            "Plan deep-space exploration...";
     type:           exec;
 	exec_task:      Exec; 
 
-	posters_input:  POM_POS;
+	posters_input:  POM_POS, DTM_LABEL_POSTER;
 
     codel_main:         xaresFindGoalMain;
-    fail_reports:       NO_FRONTIER, CANNOT_READ_POM, CANNOT_UPDATE_POSTER; 
+    fail_reports:       NO_FRONTIER, CANNOT_READ_POSTER, CANNOT_UPDATE_POSTER; 
     interrupt_activity: all; 
 };
 
@@ -119,13 +109,7 @@ poster Path {
                        EXEC TASK
  ****************************************************/
 exec_task Exec {
-	/*period:           1;*/
-	/*delay:            0;*/
-	priority:           150;
 	stack_size:         20000; // in bytes
-	/*codel_task_start:   xaresMainTaskInit;*/
-	/*codel_task_main:    xaresMainTaskMain;*/
-	/*codel_task_end:     xaresMainTaskEnd;*/
 	/*fail_reports: NO_FRONTIER, CANNOT_READ_POM;*/
 };
 

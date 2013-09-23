@@ -9,13 +9,19 @@
  **/
 
 #include <portLib.h>
+#include <posterLib.h>
+//#include <dtmStruct.h>
+
+#include <ostream>
+#include <cstdlib>
+#include <limits>
+#include <sys/time.h>
 
 #include "server/xaresHeader.h"
 #include "xares/xares.hpp"
+#include "gladys/weight_map.hpp"
 
-#include <iostream>
-#include <cstdlib>
-#include <sys/time.h>
+//#include <dtmStruct.h>
 
 /*------------------------------------------------------------------------
  * Local structures and functions
@@ -52,16 +58,39 @@ GENPOS_CART_CONFIG from_local_coord( gladys::point_xy_t p ) {//{{{
   return res;
 }//}}}
 
+static inline
+void fill_gdal(gladys::gdal::raster& gdal, const DTM_LABEL_POSTER* poster){//{{{
+	int nbLines = poster->nbLines;
+	int nbCols = poster->nbCols;
+
+	for (size_t i = 0; i < nbLines; ++i) 
+		for (size_t j = 0; j < nbCols; ++j)
+		{
+			switch (poster->state[i][j]) {
+				case DTM_NO_LABEL:
+					gdal[i * nbCols + j] = 100.0;
+					break;
+				case DTM_LABEL_TRAVERSABLE:
+					gdal[i * nbCols + j] = 3.14;
+					break;
+				case DTM_LABEL_OBSTACLE:
+					gdal[i * nbCols + j] = std::numeric_limits<float>::infinity();
+					break;
+			}
+		}
+}//}}}
+
 /*------------------------------------------------------------------------
  * Local variables
  */
 // poster IDs that are initialized with PosterFind requests
 static POSTER_ID robotPos_PosterID ;
 //static POSTER_ID teammatePos_PosterID	;
+static POSTER_ID dtm_PosterID ;
 
-// Used objects
-static xares::xares xp ; // the exploration planner
-
+//gladys::weight_map wm;
+//DTM_LABEL_POSTER* poster ;
+//gladys::gdal::raster gdal ;
 
 /*------------------------------------------------------------------------
  * Init
@@ -87,53 +116,31 @@ xaresInitMain(xaresInitParams *initParams, int *report)
     return ETHER;
   }
 
-  /*  Here you get some xp, cause you're going on an adventure ! ;-) */
-  // TODO try/catch ?
-  xp = xares::xares(    initParams->regionMapPath,
-                        initParams->robotModelPath );
+  // dtm label poster
+  if (posterFind(initParams->dtmPosterName, &dtm_PosterID) == ERROR) {
+    std::cerr << "#EEE# xares : cannot find dtm poster : " 
+              << initParams->dtmPosterName << std::endl;
+    (*report) = S_xares_CANNOT_CONNECT ;
+    return ETHER;
+  }
 
-  //if ( xp == NULL ) {
-    //(*report) = S_xares_FAILED_CREATION ;
-    //return FAIL;
-  //}
+  std::cerr << "[xares] Init -- posters found." << std::endl;
 
-  // set local reference
-  std::array<double,4> transform = xp.get_transform() ;
-  local_coords.xScale   = transform[0];
-  local_coords.yScale   = transform[1];
-  local_coords.xOrigin  = transform[2];
-  local_coords.yOrigin  = transform[3];
+//  // link the dtm with the weight map
+//  DTM_LABEL_POSTER* poster = (DTM_LABEL_POSTER*)posterAddr(dtm_PosterID);
+//  posterTake(dtm_PosterID, POSTER_READ);
+//
+//  gdal = wm.setup_weight_band(poster->nbLines, poster->nbCols);
 
   // Poster Init
   memset(&SDI_F->path, 0, sizeof(SDI_F->path));
+
+  std::cerr << "[xares] Init done." << std::endl;
 
   //end
   (*report) = OK ;
   return ETHER;
 }///}}}
-
-/*------------------------------------------------------------------------
- * UpdateModels
- *
- * Description: 
- *
- * Reports:      OK
- *              S_xares_FAILED_CREATION
- */
-
-/* xaresUpdateMain  -  codel EXEC of UpdateModels
-   Returns:  EXEC END ETHER FAIL ZOMBIE */
-ACTIVITY_EVENT
-xaresUpdateMain(xaresInitParams *initParams, int *report)
-{//{{{
-  /* Load the new models */
-  // TODO try/catch ?
-  xp.load(    initParams->regionMapPath,
-              initParams->robotModelPath );
-
-  (*report) = OK ;
-  return ETHER;
-}//}}}
 
 /*------------------------------------------------------------------------
  * FindGoal
@@ -142,7 +149,7 @@ xaresUpdateMain(xaresInitParams *initParams, int *report)
  *
  * Reports:      OK
  *              S_xares_NO_FRONTIER
- *              S_xares_CANNOT_READ_POM
+ *              S_xares_CANNOT_READ_POSTER
  *              S_xares_CANNOT_UPDATE_POSTER
  */
 
@@ -151,28 +158,68 @@ xaresUpdateMain(xaresInitParams *initParams, int *report)
 ACTIVITY_EVENT
 xaresFindGoalMain(int *report)
 {//{{{
+  struct timeval tv0, tv1;
+
+  std::cerr << "[xares] Init -- read posters." << std::endl;
+
   /* Init */
   // Read pom posters
   POM_POS robotPos;
   if ( posterRead( robotPos_PosterID, 0, &robotPos, sizeof(POM_POS) ) == ERROR) {
     std::cerr << "#EEE# xares : can not read pom poster." << std::endl;
-    (*report) = S_xares_CANNOT_READ_POM;
-    return FAIL;
+    (*report) = S_xares_CANNOT_READ_POSTER;
+    return ETHER;
   }
 
-  // Transform POM_POS into gladys::points_t
+  // read dtm poster ; link the dtm with the weight map
+  const DTM_LABEL_POSTER* poster = (const DTM_LABEL_POSTER*)posterAddr(dtm_PosterID);
+  posterTake(dtm_PosterID, POSTER_READ);
+
+  gladys::weight_map wm;
+  gladys::gdal::raster& gdal = wm.setup_weight_band(poster->nbLines, poster->nbCols);
+
+
+  // Update the weight map with the dtm label poster
+  std::cerr << "[xares] Fill gdal with dtm poster." << std::endl;
+  gettimeofday(&tv0, NULL);
+  fill_gdal(gdal, poster);
+  gettimeofday(&tv1, NULL);
+
+  std::cerr << "[xares] dtm data loaded (" 
+            << (tv1.tv_sec -  tv0.tv_sec) * 1000 +
+            (tv1.tv_usec - tv0.tv_usec) / 1000 << " ms)." << std::endl;
+
+  /* load the planner */
+  gettimeofday(&tv0, NULL);
+  xares::xares xp( wm );
+  gettimeofday(&tv1, NULL);
+
+  std::cerr << "[xares] planner loaded ("
+            << (tv1.tv_sec -  tv0.tv_sec) * 1000 +
+            (tv1.tv_usec - tv0.tv_usec) / 1000 << " ms)." << std::endl;
+
+  /* set local reference */
+  std::array<double,4> transform = xp.get_transform() ;
+  local_coords.xScale   = transform[0];
+  local_coords.yScale   = transform[1];
+  local_coords.xOrigin  = transform[2];
+  local_coords.yOrigin  = transform[3];
+  std::cerr << "[xares] local reference loaded." << std::endl;
+
+  /* Transform POM_POS into gladys::points_t */
   gladys::points_t r_pos ; 
   r_pos.push_back( gladys::point_xy_t { robotPos.mainToOrigin.euler.x, 
                                         robotPos.mainToOrigin.euler.y } );
+  std::cerr << "[xares] seed loaded." << std::endl;
+
   /* Plan */
-  struct timeval tv0, tv1;
   gettimeofday(&tv0, NULL);
   xp.plan( r_pos );
   gettimeofday(&tv1, NULL);
 
-  std::cerr << "[xares] Plan computed in " 
+  std::cerr << "[xares] Plan computed (" 
             << (tv1.tv_sec -  tv0.tv_sec) * 1000 +
-            (tv1.tv_usec - tv0.tv_usec) / 1000 << " ms\n";
+            (tv1.tv_usec - tv0.tv_usec) / 1000 << " ms)." << std::endl;
 
   /* and Post */
   // get plan and transform it into GENPOS_TRAJ_POINTS ;

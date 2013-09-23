@@ -185,6 +185,8 @@ xaresFindGoalMain(int *report)
   fill_gdal(gdal, poster);
   gettimeofday(&tv1, NULL);
 
+  posterGive(dtm_PosterID);
+
   std::cerr << "[xares] dtm data loaded (" 
             << (tv1.tv_sec -  tv0.tv_sec) * 1000 +
             (tv1.tv_usec - tv0.tv_usec) / 1000 << " ms)." << std::endl;

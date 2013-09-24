@@ -59,6 +59,15 @@ GENPOS_CART_CONFIG from_local_coord( gladys::point_xy_t p ) {//{{{
 }//}}}
 
 static inline
+GENPOS_CART_CONFIG fake_from_local_coord( gladys::point_xy_t p ) {//{{{
+  GENPOS_CART_CONFIG res;
+  res.x = p[0] ;
+  res.y = p[1] ;
+  res.theta = 0;
+
+  return res;
+}//}}}
+
 void fill_gdal(gladys::gdal::raster& gdal, const DTM_LABEL_POSTER* poster){//{{{
 	int nbLines = poster->nbLines;
 	int nbCols = poster->nbCols;
@@ -178,12 +187,34 @@ xaresFindGoalMain(int *report)
   gladys::weight_map wm;
   gladys::gdal::raster& gdal = wm.setup_weight_band(poster->nbLines, poster->nbCols);
 
+  std::cerr << "[xares] (x0,y0,xS,yS) = ("
+            << poster->xOrigin << ","
+            << poster->yOrigin << ","
+            << poster->xScale << ","
+            << poster->yScale << ")"
+            << std::endl;
+  wm.get_map().set_transform(  poster->xOrigin,
+                               poster->yOrigin,
+                               poster->xScale,
+                               poster->yScale );
 
   // Update the weight map with the dtm label poster
   std::cerr << "[xares] Fill gdal with dtm poster." << std::endl;
   gettimeofday(&tv0, NULL);
   fill_gdal(gdal, poster);
   gettimeofday(&tv1, NULL);
+
+  //for (auto& i : gdal)
+      //std::cerr << i << " " ;
+  //std::cerr << std::endl;
+
+  //wm.get_map().save("/tmp/weight_map_003-genom.tif");
+  //gladys::gdal tg ;
+  //tg.load("/tmp/weight_map_003-genom.tif");
+  //if (wm.get_map()==tg)
+      //puts(" Oh yeah !");
+  //else
+      //puts("try again, fools!");
 
   posterGive(dtm_PosterID);
 
@@ -244,14 +275,16 @@ xaresFindGoalMain(int *report)
     curr = *it;
 
     if ( dist > 6.0 ) {
-      SDI_F->path.points[SDI_F->path.nbPts] = from_local_coord( *it );
+      //SDI_F->path.points[SDI_F->path.nbPts] = from_local_coord( *it );
+      SDI_F->path.points[SDI_F->path.nbPts] = fake_from_local_coord( *it );
       SDI_F->path.nbPts++;
       dist = 0.0;
     }
   }
 
   /* Always add the last point to the path */
-  SDI_F->path.points[SDI_F->path.nbPts] = from_local_coord(curr);
+  //SDI_F->path.points[SDI_F->path.nbPts] = from_local_coord(curr);
+  SDI_F->path.points[SDI_F->path.nbPts] = fake_from_local_coord(curr);
   SDI_F->path.nbPts++;
 
   SDI_F->path.numRef++;

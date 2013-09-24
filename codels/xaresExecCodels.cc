@@ -209,7 +209,6 @@ xaresFindGoalMain(int *report)
                                poster->yScale );
 
   // Update the weight map with the dtm label poster
-  std::cerr << "[xares] Fill gdal with dtm poster." << std::endl;
   gettimeofday(&tv0, NULL);
   fill_gdal(gdal, poster);
   gettimeofday(&tv1, NULL);
@@ -249,7 +248,9 @@ xaresFindGoalMain(int *report)
   gladys::points_t r_pos ; 
   r_pos.push_back( gladys::point_xy_t { robotPos.mainToOrigin.euler.x, 
                                         robotPos.mainToOrigin.euler.y } );
-  std::cerr << "[xares] seed loaded." << std::endl;
+  std::cerr << "[xares] seed (" 
+            << r_pos[0][0] << "," << r_pos[0][1] 
+            << ") loaded." << std::endl;
 
   /* Plan */
   gettimeofday(&tv0, NULL);
@@ -271,12 +272,18 @@ xaresFindGoalMain(int *report)
   // From here, there should be a valid plan
   std::cerr << "[xares] Plan computed (" 
             << (tv1.tv_sec -  tv0.tv_sec) * 1000 +
-            (tv1.tv_usec - tv0.tv_usec) / 1000 << " ms)." << std::endl;
+            (tv1.tv_usec - tv0.tv_usec) / 1000 << " ms)" << std::endl;
 
   /* and Post */
-  // get plan and transform it into GENPOS_TRAJ_POINTS ;
+  // get plan 
   const gladys::path_t& path = xp.get_path() ;
 
+  for (unsigned int i = 0 ; i < path.size() ; i++)
+    std::cerr   << "[xares] ----waypoint #" << i 
+                << " = (" << path[i][0]<< "," << path[i][1] 
+                <<")"<<std::endl;
+
+  // transform plan into GENPOS_TRAJ_POINTS ;
   //if ( path.size() == 0 )
     //return ETHER;
 

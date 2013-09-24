@@ -144,6 +144,12 @@ xaresInitMain(xaresInitParams *initParams, int *report)
 //
 //  gdal = wm.setup_weight_band(poster->nbLines, poster->nbCols);
 
+  // Set internal parameters
+  SDI_F->internalParams.max_nf   = initParams->max_nf;
+  SDI_F->internalParams.min_size = initParams->min_size;
+  SDI_F->internalParams.min_dist = initParams->min_dist;
+  SDI_F->internalParams.max_dist = initParams->max_dist;
+
   // Poster Init
   memset(&SDI_F->path, 0, sizeof(SDI_F->path));
 
@@ -160,6 +166,7 @@ xaresInitMain(xaresInitParams *initParams, int *report)
  * Description: 
  *
  * Reports:      OK
+ *              S_xares_UNEXPECTED_DATA
  *              S_xares_NO_FRONTIER
  *              S_xares_CANNOT_READ_POSTER
  *              S_xares_CANNOT_UPDATE_POSTER
@@ -207,18 +214,6 @@ xaresFindGoalMain(int *report)
   fill_gdal(gdal, poster);
   gettimeofday(&tv1, NULL);
 
-  //for (auto& i : gdal)
-      //std::cerr << i << " " ;
-  //std::cerr << std::endl;
-
-  //wm.get_map().save("/tmp/weight_map_003-genom.tif");
-  //gladys::gdal tg ;
-  //tg.load("/tmp/weight_map_003-genom.tif");
-  //if (wm.get_map()==tg)
-      //puts(" Oh yeah !");
-  //else
-      //puts("try again, fools!");
-
   posterGive(dtm_PosterID);
 
   std::cerr << "[xares] dtm data loaded (" 
@@ -233,6 +228,14 @@ xaresFindGoalMain(int *report)
   std::cerr << "[xares] planner loaded ("
             << (tv1.tv_sec -  tv0.tv_sec) * 1000 +
             (tv1.tv_usec - tv0.tv_usec) / 1000 << " ms)." << std::endl;
+
+  /* Set internal parameters for xares*/
+  xp.set_params(
+      SDI_F->internalParams.max_nf,
+      SDI_F->internalParams.min_size,
+      SDI_F->internalParams.min_dist,
+      SDI_F->internalParams.max_dist
+  );
 
   /* set local reference */
   std::array<double,4> transform = xp.get_transform() ;
@@ -250,9 +253,22 @@ xaresFindGoalMain(int *report)
 
   /* Plan */
   gettimeofday(&tv0, NULL);
-  xp.plan( r_pos );
+  xares::xares::return_value rv = xp.plan( r_pos );
   gettimeofday(&tv1, NULL);
 
+  if ( rv == xares::xares::XARES_FAILURE ) {
+    std::cerr << "#EEE# xares : unexpected data ; unable to compute frontiers :'( " << std::endl;
+    (*report) = S_xares_UNEXPECTED_DATA;
+    return ETHER;
+  }
+
+  if ( rv == xares::xares::XARES_NO_FRONTIER ) {
+    std::cerr << "#EEE# xares : no valuable frontier detected." << std::endl;
+    (*report) = S_xares_NO_FRONTIER;
+    return ETHER;
+  }
+
+  // From here, there should be a valid plan
   std::cerr << "[xares] Plan computed (" 
             << (tv1.tv_sec -  tv0.tv_sec) * 1000 +
             (tv1.tv_usec - tv0.tv_usec) / 1000 << " ms)." << std::endl;
@@ -261,8 +277,8 @@ xaresFindGoalMain(int *report)
   // get plan and transform it into GENPOS_TRAJ_POINTS ;
   const gladys::path_t& path = xp.get_path() ;
 
-  if ( path.size() == 0 )
-    return ETHER;
+  //if ( path.size() == 0 )
+    //return ETHER;
 
   gladys::path_t::const_iterator it;
   SDI_F->path.nbPts = 0;

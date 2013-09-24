@@ -58,6 +58,7 @@ import from genPos {
 typedef struct XARES_STR {
 	
 	xaresInitParams initParams;
+	xaresInternalParams internalParams;
 	GENPOS_TRAJ_POINTS path;
 
 } XARES_STR;
@@ -74,10 +75,14 @@ request Init
     codel_main: xaresInitMain;
 
     input: 
-        initParams::initParams;
+        xaresInitParams::initParams;
     input_info: 
-        XARES_POM_POSTER_NAME::"POM Pos poster's name",
         XARES_DTM_POSTER_NAME::"DTM poster's name",
+        XARES_POM_POSTER_NAME::"POM Pos poster's name",
+        XARES_MAX_NF::"Max number of frontiers to consider",
+        XARES_MIN_SIZE::"Minimal size of the frontiers to consider",
+        XARES_MIN_DIST::"Minimal dist to the frontiers to consider",
+        XARES_MAX_DIST::"Maximal dist to the frontiers to consider",
         XARES_DEFAULT_LOGDIR::"Log directory";
 
     fail_msg: CANNOT_CONNECT, FAILED_CREATION;
@@ -92,7 +97,17 @@ request FindGoal {
 	posters_input:  POM_POS, DTM_LABEL_POSTER;
 
     codel_main:         xaresFindGoalMain;
-    fail_reports:       NO_FRONTIER, CANNOT_READ_POSTER, CANNOT_UPDATE_POSTER; 
+    fail_reports:       UNEXPECTED_DATA, NO_FRONTIER, CANNOT_READ_POSTER, CANNOT_UPDATE_POSTER; 
+    interrupt_activity: all; 
+};
+
+request SetParameters {
+    doc:            "Set the internal parameters...";
+    type:           control;
+
+    input: 
+        xaresInternalParams::internalParams;
+    codel_control:         xaresSetParametersCtrl;
     interrupt_activity: all; 
 };
 

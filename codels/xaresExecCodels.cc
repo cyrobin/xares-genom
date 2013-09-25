@@ -263,7 +263,7 @@ xaresFindGoalMain(int *report)
     std::ofstream dump_file( oss.str() );
 
     // dump r_pos
-    dump_file << "r_pos " << r_pos.size();
+    dump_file << "r_pos " << r_pos.size() << " ";
     for (auto& pos : r_pos )
         dump_file << pos[0] << " " << pos[1];
     dump_file << std::endl;

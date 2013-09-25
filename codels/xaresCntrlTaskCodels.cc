@@ -30,4 +30,38 @@ xaresSetParametersCtrl(xaresInternalParams *internalParams, int *report)
   return OK;
 }
 
+/*------------------------------------------------------------------------
+ * xaresEnableDumpCtrl  -  control codel of CONTROL request EnableDump
+ *
+ * Description:    
+ * Report: OK
+ *
+ * Returns:    OK or ERROR
+ */
+
+STATUS
+xaresEnableDumpCtrl(int *report)
+{
+  SDI_F->dump = GEN_TRUE;
+  return OK;
+}
+
+/*------------------------------------------------------------------------
+ * xaresDisableDumpCtrl  -  control codel of CONTROL request DisableDump
+ *
+ * Description:    
+ * Report: OK
+ *
+ * Returns:    OK or ERROR
+ */
+
+STATUS
+xaresDisableDumpCtrl(int *report)
+{
+  SDI_F->dump = GEN_FALSE;
+  return OK;
+}
+
+
+
 

@@ -28,7 +28,7 @@
 module xares
 {
     number:	    1741;
-    requires:   pom, genPos; 
+    requires:   pom, dtm, genPos, genBasic; 
     codels_requires: "xares >= 0.2.0","gladys >= 0.2.0", dtm, pom;
     internal_data:	XARES_STR;
     version:	"0.2";
@@ -52,6 +52,10 @@ import from genPos {
 #include "genPosStruct.h"
 };
 
+import from genBasic {
+#include "genBasicStruct.h"
+};
+
 #include "xaresStruct.h"
 
 /* ---- Module database description ---- */
@@ -59,6 +63,7 @@ typedef struct XARES_STR {
 	
 	xaresInitParams initParams;
 	xaresInternalParams internalParams;
+	GEN_BOOL dump;
 	GENPOS_TRAJ_POINTS path;
 
 } XARES_STR;
@@ -102,12 +107,26 @@ request FindGoal {
 };
 
 request SetParameters {
-    doc:            "Set the internal parameters...";
+    doc:            "Set the internal parameters";
     type:           control;
 
     input: 
         xaresInternalParams::internalParams;
     codel_control:         xaresSetParametersCtrl;
+    interrupt_activity: all; 
+};
+
+request EnableDump{
+    doc:            "Enable the dumping of data";
+    type:           control;
+    codel_control:  xaresEnableDumpCtrl;
+    interrupt_activity: all; 
+};
+
+request DisableDump{
+    doc:            "Disable the dumping of data";
+    type:           control;
+    codel_control:  xaresDisableDumpCtrl;
     interrupt_activity: all; 
 };
 

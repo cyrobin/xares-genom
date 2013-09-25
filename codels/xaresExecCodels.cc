@@ -10,9 +10,9 @@
 
 #include <portLib.h>
 #include <posterLib.h>
-//#include <dtmStruct.h>
 
 #include <ostream>
+#include <sstream>
 #include <cstdlib>
 #include <limits>
 #include <sys/time.h>
@@ -103,6 +103,7 @@ static POSTER_ID dtm_PosterID ;
 //gladys::weight_map wm;
 //DTM_LABEL_POSTER* poster ;
 //gladys::gdal::raster gdal ;
+int dump_cnt = 0;
 
 /*------------------------------------------------------------------------
  * Init
@@ -149,6 +150,8 @@ xaresInitMain(xaresInitParams *initParams, int *report)
   SDI_F->internalParams.min_size = initParams->min_size;
   SDI_F->internalParams.min_dist = initParams->min_dist;
   SDI_F->internalParams.max_dist = initParams->max_dist;
+
+  SDI_F->dump = GEN_FALSE;
 
   // Poster Init
   memset(&SDI_F->path, 0, sizeof(SDI_F->path));
@@ -251,6 +254,29 @@ xaresFindGoalMain(int *report)
   std::cerr << "[xares] seed (" 
             << r_pos[0][0] << "," << r_pos[0][1] 
             << ") loaded." << std::endl;
+
+
+  if ( SDI_F->dump ) {
+    // open dump file
+    std::ostringstream oss;
+    oss << "./dump-xares-" << dump_cnt ;
+    std::ofstream dump_file( oss.str() );
+
+    // dump r_pos
+    dump_file << "r_pos " << r_pos.size();
+    for (auto& pos : r_pos )
+        dump_file << pos[0] << " " << pos[1];
+    dump_file << std::endl;
+
+    // dump weight_map
+    oss << "-weight-map.tif";
+    wm.save( oss.str() );
+    dump_file << oss.str() << std::endl;
+
+    // close file
+    dump_file.close();
+    dump_cnt++;
+  }
 
   /* Plan */
   gettimeofday(&tv0, NULL);

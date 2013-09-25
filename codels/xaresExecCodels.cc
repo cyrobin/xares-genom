@@ -251,10 +251,11 @@ xaresFindGoalMain(int *report)
   gladys::points_t r_pos ; 
   r_pos.push_back( gladys::point_xy_t { robotPos.mainToOrigin.euler.x, 
                                         robotPos.mainToOrigin.euler.y } );
+  double yaw = robotPos.mainToOrigin.euler.yaw ;
+
   std::cerr << "[xares] seed (" 
             << r_pos[0][0] << "," << r_pos[0][1] 
-            << ") loaded." << std::endl;
-
+            << ") (yaw = " << yaw << ") loaded." << std::endl;
 
   if ( SDI_F->dump ) {
     // open dump file
@@ -267,6 +268,8 @@ xaresFindGoalMain(int *report)
     for (auto& pos : r_pos )
         dump_file << pos[0] << " " << pos[1];
     dump_file << std::endl;
+    // dump yaw
+    dump_file << "yaw " << yaw << std::endl;
 
     // dump weight_map
     oss << "-weight-map.tif";
@@ -280,7 +283,7 @@ xaresFindGoalMain(int *report)
 
   /* Plan */
   gettimeofday(&tv0, NULL);
-  xares::xares::return_value rv = xp.plan( r_pos );
+  xares::xares::return_value rv = xp.plan( r_pos, yaw );
   gettimeofday(&tv1, NULL);
 
   if ( rv == xares::xares::XARES_FAILURE ) {

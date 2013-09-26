@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <limits>
 #include <sys/time.h>
+#include "boost/format.hpp"
 
 #include "server/xaresHeader.h"
 #include "xares/xares.hpp"
@@ -273,7 +274,8 @@ xaresFindGoalMain(int *report)
   if ( SDI_F->dump ) {
     // open dump file
     std::ostringstream oss, oss2;
-    oss << SDI_F->logDir << "dump-xares-" << dump_cnt << ".log";
+    oss << SDI_F->logDir << "dump-xares-";
+    oss << boost::format("%3d") % dump_cnt << ".log";
     std::ofstream dump_file( oss.str() );
 
     // dump r_pos
@@ -379,11 +381,9 @@ xaresFindGoalMain(int *report)
    Returns:  EXEC END ETHER FAIL ZOMBIE */
 ACTIVITY_EVENT
 xaresReinitYawCtrl(int *report)
-{
+{//{{{
   /* forget about past goals */
   last_goals.clear() ;
   return ETHER;
-}
-
-
+}//}}}
 

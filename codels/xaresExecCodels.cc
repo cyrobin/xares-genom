@@ -104,7 +104,7 @@ static POSTER_ID dtm_PosterID ;
 //DTM_LABEL_POSTER* poster ;
 //gladys::gdal::raster gdal ;
 int dump_cnt = 0;
-gladys::point_xy_t last_goal {0.0 ,0.0 };
+gladys::points_t last_goals ;
 
 /*------------------------------------------------------------------------
  * Init
@@ -255,11 +255,16 @@ xaresFindGoalMain(int *report)
   r_pos.push_back( gladys::point_xy_t { robotPos.mainToOrigin.euler.x, 
                                         robotPos.mainToOrigin.euler.y } );
 
+  double yaw ;
   /* Get the desired cape */
-  // the current yaw of the robot
-  //double yaw = robotPos.mainToOrigin.euler.yaw ;
-  // from the last_goal and the current position of the robot
-  double yaw = gladys::yaw_angle( last_goal, r_pos[0] );
+  if ( last_goals.size() > 1 ) {
+    // if there is past goals, try to keep the same direction
+    yaw = gladys::yaw_angle( last_goals[0], last_goals[1] );
+  }
+  else { 
+    // else, try to keep the current yaw of the robot
+    yaw = robotPos.mainToOrigin.euler.yaw ;
+  }
 
   std::cerr << "[xares] seed (" 
             << r_pos[0][0] << "," << r_pos[0][1] 
@@ -328,10 +333,6 @@ xaresFindGoalMain(int *report)
                 << " = (" << path[i][0]<< "," << path[i][1] 
                 <<")"<<std::endl;
 
-  // transform plan into GENPOS_TRAJ_POINTS ;
-  //if ( path.size() == 0 )
-    //return ETHER;
-
   gladys::path_t::const_iterator it;
   SDI_F->path.nbPts = 0;
   double dist = 0.0;
@@ -361,8 +362,28 @@ xaresFindGoalMain(int *report)
   SDI_F->path.numRef++;
 
   /* remember this goal for the next time (yaw) */
-  last_goal = curr ;
+  last_goals.push_back( curr );
 
   return ETHER;
 }//}}}
+
+/*------------------------------------------------------------------------
+ * ReinitYaw
+ *
+ * Description: 
+ *
+ * Reports:      OK
+ */
+
+/* xaresReinitYawCtrl  -  codel EXEC of ReinitYaw
+   Returns:  EXEC END ETHER FAIL ZOMBIE */
+ACTIVITY_EVENT
+xaresReinitYawCtrl(int *report)
+{
+  /* forget about past goals */
+  last_goals.clear() ;
+  return ETHER;
+}
+
+
 

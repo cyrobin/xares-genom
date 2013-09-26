@@ -129,6 +129,14 @@ request DisableDump{
     interrupt_activity: all; 
 };
 
+request ReinitYaw{
+    doc:            "Forget past goals used to estimate desired yaw";
+    type:           control;
+    exec_task:      Exec;
+    codel_main:     xaresReinitYawCtrl;
+    interrupt_activity: all; 
+};
+
 /****************************************************
                        POSTER(s)
  ****************************************************/

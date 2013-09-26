@@ -153,6 +153,8 @@ xaresInitMain(xaresInitParams *initParams, int *report)
 
   SDI_F->dump = GEN_FALSE;
 
+  strncpy(SDI_F->logDir,initParams->logDir,XARES_MAX_LENGTH) ;
+
   // Poster Init
   memset(&SDI_F->path, 0, sizeof(SDI_F->path));
 
@@ -259,8 +261,8 @@ xaresFindGoalMain(int *report)
 
   if ( SDI_F->dump ) {
     // open dump file
-    std::ostringstream oss;
-    oss << "./dump-xares-" << dump_cnt ;
+    std::ostringstream oss, oss2;
+    oss << SDI_F->logDir << "dump-xares-" << dump_cnt << ".log";
     std::ofstream dump_file( oss.str() );
 
     // dump r_pos
@@ -271,10 +273,18 @@ xaresFindGoalMain(int *report)
     // dump yaw
     dump_file << "yaw " << yaw << std::endl;
 
+    // dump internal params
+    dump_file << "internal_params "
+              << SDI_F->internalParams.max_nf   << " "
+              << SDI_F->internalParams.min_size << " "
+              << SDI_F->internalParams.min_dist << " "
+              << SDI_F->internalParams.max_dist << " "
+              << std::endl;
+
     // dump weight_map
-    oss << "-weight-map.tif";
-    wm.save( oss.str() );
-    dump_file << oss.str() << std::endl;
+    oss2 << SDI_F->logDir << "dump-xares-" << dump_cnt << "-weight-map.tif";
+    wm.save( oss2.str() );
+    dump_file << oss2.str() << std::endl;
 
     // close file
     dump_file.close();

@@ -24,6 +24,7 @@ typedef struct xaresInitParams {
     unsigned int min_size;
     double min_dist;
     double max_dist;
+	char logDir[XARES_MAX_LENGTH];
 } xaresInitParams;
 
 #endif //XARES_STRUCT_H

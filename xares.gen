@@ -60,12 +60,11 @@ import from genBasic {
 
 /* ---- Module database description ---- */
 typedef struct XARES_STR {
-	
 	xaresInitParams initParams;
 	xaresInternalParams internalParams;
 	GEN_BOOL dump;
 	GENPOS_TRAJ_POINTS path;
-
+	char logDir[XARES_MAX_LENGTH];
 } XARES_STR;
 
 /****************************************************

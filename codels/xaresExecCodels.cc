@@ -315,7 +315,7 @@ xaresFindGoalMain(int *report)
 
   /* and Post */
   // get plan 
-  const gladys::path_t& path = xp.get_path() ;
+  const gladys::path_t& path = xp.get_goal().path ;
 
   for (unsigned int i = 0 ; i < path.size() ; i++)
     std::cerr   << "[xares] ----waypoint #" << i 

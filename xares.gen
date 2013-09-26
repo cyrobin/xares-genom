@@ -29,7 +29,7 @@ module xares
 {
     number:	    1741;
     requires:   pom, dtm, genPos, genBasic; 
-    codels_requires: "xares >= 0.2.0","gladys >= 0.2.0", dtm, pom;
+    codels_requires: "libxares >= 0.2.0","gladys >= 0.2.0", dtm, pom;
     internal_data:	XARES_STR;
     version:	"0.2";
 	lang: "c++";

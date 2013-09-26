@@ -275,7 +275,7 @@ xaresFindGoalMain(int *report)
     // open dump file
     std::ostringstream oss, oss2;
     oss << SDI_F->logDir << "dump-xares-";
-    oss << boost::format("%3d") % dump_cnt << ".log";
+    oss << boost::format("%04s") % dump_cnt << ".log";
     std::ofstream dump_file( oss.str() );
 
     // dump r_pos
@@ -295,7 +295,8 @@ xaresFindGoalMain(int *report)
               << std::endl;
 
     // dump weight_map
-    oss2 << SDI_F->logDir << "dump-xares-" << dump_cnt << "-weight-map.tif";
+    oss2 << SDI_F->logDir << "dump-xares-" ;
+    oss2 << boost::format("%04s") % dump_cnt << "-weight-map.tif";
     wm.save( oss2.str() );
     dump_file << oss2.str() << std::endl;
 

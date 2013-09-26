@@ -104,6 +104,7 @@ static POSTER_ID dtm_PosterID ;
 //DTM_LABEL_POSTER* poster ;
 //gladys::gdal::raster gdal ;
 int dump_cnt = 0;
+gladys::point_xy_t last_goal {0.0 ,0.0 };
 
 /*------------------------------------------------------------------------
  * Init
@@ -253,7 +254,12 @@ xaresFindGoalMain(int *report)
   gladys::points_t r_pos ; 
   r_pos.push_back( gladys::point_xy_t { robotPos.mainToOrigin.euler.x, 
                                         robotPos.mainToOrigin.euler.y } );
-  double yaw = robotPos.mainToOrigin.euler.yaw ;
+
+  /* Get the desired cape */
+  // the current yaw of the robot
+  //double yaw = robotPos.mainToOrigin.euler.yaw ;
+  // from the last_goal and the current position of the robot
+  double yaw = gladys::yaw_angle( last_goal, r_pos[0] );
 
   std::cerr << "[xares] seed (" 
             << r_pos[0][0] << "," << r_pos[0][1] 
@@ -353,6 +359,9 @@ xaresFindGoalMain(int *report)
   SDI_F->path.nbPts++;
 
   SDI_F->path.numRef++;
+
+  /* remember this goal for the next time (yaw) */
+  last_goal = curr ;
 
   return ETHER;
 }//}}}

@@ -11,3 +11,6 @@ server/
 
 #ignore build folder
 build/
+
+# but count this one
+!codels/Makefile.in

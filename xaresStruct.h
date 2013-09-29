@@ -7,6 +7,10 @@
 #define XARES_MIN_SIZE 2
 #define XARES_MIN_DIST 2.5
 #define XARES_MAX_DIST 50.0
+#define XARES_X_ORIGIN -300.0
+#define XARES_Y_ORIGIN -300.0
+#define XARES_HEIGHT_MAX 600.0
+#define XARES_WIDTH_MAX 600.0
 #define XARES_DEFAULT_LOGDIR "/tmp"
 #define XARES_MAX_LENGTH 1024
 
@@ -15,6 +19,10 @@ typedef struct xaresInternalParams {
         unsigned int min_size;
         double min_dist;
         double max_dist;
+        int x_origin ;
+        int y_origin ;
+        unsigned int height_max ;
+        unsigned int width_max ;
 } xaresInternalParams;
 
 typedef struct xaresInitParams {
@@ -24,6 +32,10 @@ typedef struct xaresInitParams {
     unsigned int min_size;
     double min_dist;
     double max_dist;
+    int x_origin ;
+    int y_origin ;
+    unsigned int height_max ;
+    unsigned int width_max ;
 	char logDir[XARES_MAX_LENGTH];
 } xaresInitParams;
 

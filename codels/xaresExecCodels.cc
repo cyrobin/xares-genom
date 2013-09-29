@@ -153,6 +153,11 @@ xaresInitMain(xaresInitParams *initParams, int *report)
   SDI_F->internalParams.min_dist = initParams->min_dist;
   SDI_F->internalParams.max_dist = initParams->max_dist;
 
+  SDI_F->internalParams.x_origin   = initParams->x_origin  ;
+  SDI_F->internalParams.y_origin   = initParams->y_origin  ;
+  SDI_F->internalParams.height_max = initParams->height_max;
+  SDI_F->internalParams.width_max  = initParams->width_max ;
+
   SDI_F->dump = GEN_FALSE;
 
   strncpy(SDI_F->logDir,initParams->logDir,XARES_MAX_LENGTH) ;
@@ -228,7 +233,11 @@ xaresFindGoalMain(int *report)
 
   /* load the planner */
   gettimeofday(&tv0, NULL);
-  xares::xares xp( wm );
+  xares::xares xp( wm,
+         SDI_F->internalParams.x_origin,
+         SDI_F->internalParams.y_origin,
+         SDI_F->internalParams.height_max,
+         SDI_F->internalParams.width_max);
   gettimeofday(&tv1, NULL);
 
   std::cerr << "[xares] planner loaded ("
@@ -300,6 +309,15 @@ xaresFindGoalMain(int *report)
     wm.save( oss2.str() );
     dump_file << oss2.str() << std::endl;
 
+    // dump bounding of the area to explore
+    dump_file << "bounded_area"
+              << SDI_F->internalParams.x_origin, << " "
+              << SDI_F->internalParams.y_origin, << " "
+              << SDI_F->internalParams.height_max<< " "
+              << SDI_F->internalParams.width_max << " "
+              << std::endl;
+
+    // dump weight_map
     // close file
     dump_file.close();
     dump_cnt++;

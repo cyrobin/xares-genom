@@ -87,6 +87,10 @@ request Init
         XARES_MIN_SIZE::"Minimal size of the frontiers to consider",
         XARES_MIN_DIST::"Minimal dist to the frontiers to consider",
         XARES_MAX_DIST::"Maximal dist to the frontiers to consider",
+        XARES_X_ORIGIN::"x origin of the bounded arae to explore",
+        XARES_Y_ORIGIN::"y origin of the bounded arae to explore",
+        XARES_HEIGHT_MAX::"maximal height of the bounded arae to explore",
+        XARES_WIDTH_MAX::"maximal width of the bounded arae to explore",
         XARES_DEFAULT_LOGDIR::"Log directory";
 
     fail_msg: CANNOT_CONNECT, FAILED_CREATION;

@@ -21,6 +21,7 @@
 #include "server/xaresHeader.h"
 #include "xares/xares.hpp"
 #include "gladys/weight_map.hpp"
+#include "gdalwrap/gdal.hpp"
 
 //#include <dtmStruct.h>
 
@@ -69,7 +70,7 @@ GENPOS_CART_CONFIG fake_from_local_coord( gladys::point_xy_t p ) {//{{{
   return res;
 }//}}}
 
-void fill_gdal(gladys::gdal::raster& gdal, const DTM_LABEL_POSTER* poster){//{{{
+void fill_gdal(gdalwrap::raster& gdal, const DTM_LABEL_POSTER* poster){//{{{
 	int nbLines = poster->nbLines;
 	int nbCols = poster->nbCols;
 
@@ -86,7 +87,7 @@ void fill_gdal(gladys::gdal::raster& gdal, const DTM_LABEL_POSTER* poster){//{{{
 					gdal[i + nbLines * j] = 3.14;
 					break;
 				case DTM_LABEL_OBSTACLE:
-					//gdal[i * nbCols + j] = std::numeric_limits<float>::infinity();
+                    //gdal[i * nbCols + j] = std::numeric_limits<float>::infinity();
 					gdal[i + nbLines * j] = std::numeric_limits<float>::infinity();
 					break;
 			}
@@ -103,7 +104,6 @@ static POSTER_ID dtm_PosterID ;
 
 //gladys::weight_map wm;
 //DTM_LABEL_POSTER* poster ;
-//gladys::gdal::raster gdal ;
 int dump_cnt = 0;
 gladys::points_t last_goals ;
 
@@ -140,12 +140,6 @@ xaresInitMain(xaresInitParams *initParams, int *report)
   }
 
   std::cerr << "[xares] Init -- posters found." << std::endl;
-
-//  // link the dtm with the weight map
-//  DTM_LABEL_POSTER* poster = (DTM_LABEL_POSTER*)posterAddr(dtm_PosterID);
-//  posterTake(dtm_PosterID, POSTER_READ);
-//
-//  gdal = wm.setup_weight_band(poster->nbLines, poster->nbCols);
 
   // Set internal parameters
   SDI_F->internalParams.max_nf   = initParams->max_nf;
@@ -207,7 +201,7 @@ xaresFindGoalMain(int *report)
   posterTake(dtm_PosterID, POSTER_READ);
 
   gladys::weight_map wm;
-  gladys::gdal::raster& gdal = wm.setup_weight_band(poster->nbLines, poster->nbCols);
+  gdalwrap::raster& gdal = wm.setup_weight_band(poster->nbLines, poster->nbCols);
 
   std::cerr << "[xares] (x0,y0,xS,yS) = ("
             << poster->xOrigin << ","
@@ -311,8 +305,8 @@ xaresFindGoalMain(int *report)
 
     // dump bounding of the area to explore
     dump_file << "bounded_area"
-              << SDI_F->internalParams.x_origin, << " "
-              << SDI_F->internalParams.y_origin, << " "
+              << SDI_F->internalParams.x_origin << " "
+              << SDI_F->internalParams.y_origin << " "
               << SDI_F->internalParams.height_max<< " "
               << SDI_F->internalParams.width_max << " "
               << std::endl;

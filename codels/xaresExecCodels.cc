@@ -277,7 +277,7 @@ xaresFindGoalMain(int *report)
   if ( SDI_F->dump ) {
     // open dump file
     std::ostringstream oss, oss2;
-    oss << SDI_F->logDir << "dump-xares-";
+    oss << SDI_F->logDir << "/dump-xares-";
     oss << boost::format("%04s") % dump_cnt << ".log";
     std::ofstream dump_file( oss.str() );
 
@@ -298,13 +298,13 @@ xaresFindGoalMain(int *report)
               << std::endl;
 
     // dump weight_map
-    oss2 << SDI_F->logDir << "dump-xares-" ;
+    oss2 << SDI_F->logDir << "/dump-xares-" ;
     oss2 << boost::format("%04s") % dump_cnt << "-weight-map.tif";
     wm.save( oss2.str() );
     dump_file << oss2.str() << std::endl;
 
     // dump bounding of the area to explore
-    dump_file << "bounded_area"
+    dump_file << "bounded_area "
               << SDI_F->internalParams.x_origin << " "
               << SDI_F->internalParams.y_origin << " "
               << SDI_F->internalParams.height_max<< " "

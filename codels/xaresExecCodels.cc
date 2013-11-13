@@ -79,15 +79,12 @@ void fill_gdal(gdalwrap::raster& gdal, const DTM_LABEL_POSTER* poster){//{{{
 		{
 			switch (poster->state[i][j]) {
 				case DTM_NO_LABEL:
-					//gdal[i * nbCols + j] = 100.0;
-					gdal[i + nbLines * j] = 100.0;
+					gdal[i + nbLines * j] = -100.0;
 					break;
 				case DTM_LABEL_TRAVERSABLE:
-					//gdal[i * nbCols + j] = 3.14;
 					gdal[i + nbLines * j] = 3.14;
 					break;
 				case DTM_LABEL_OBSTACLE:
-                    //gdal[i * nbCols + j] = std::numeric_limits<float>::infinity();
 					gdal[i + nbLines * j] = std::numeric_limits<float>::infinity();
 					break;
 			}

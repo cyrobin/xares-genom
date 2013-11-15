@@ -260,7 +260,7 @@ xaresFindGoalMain(int *report)
   /* Get the desired cape */
   if ( last_goals.size() > 1 ) {
     // if there is past goals, try to keep the same direction
-    yaw = gladys::yaw_angle( last_goals[0], last_goals[1] );
+    yaw = gladys::yaw_angle_y_inv( last_goals[0], last_goals[1] );
   }
   else { 
     // else, try to keep the current yaw of the robot

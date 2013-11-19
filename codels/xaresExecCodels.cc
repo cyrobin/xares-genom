@@ -70,28 +70,33 @@ GENPOS_CART_CONFIG fake_from_local_coord( gladys::point_xy_t p ) {//{{{
   return res;
 }//}}}
 
+// This function fill a gdal raster with data from the DTM
 void fill_gdal(gdalwrap::raster& gdal, const DTM_LABEL_POSTER* poster){//{{{
+
 	int nbLines = poster->nbLines;
 	int nbCols = poster->nbCols;
 	const unsigned char* pu = poster->state;
+	float value ;
 
 	for (size_t i = 0; i < nbLines; ++i) 
 		for (size_t j = 0; j < nbCols; ++j, ++pu)
 		{
 			switch (*pu) {
 				case DTM_NO_LABEL:
-					gdal[i + nbLines * j] = -100.0;
+					value = -100.0; // Unknown is < 0
 					break;
 				case DTM_LABEL_TRAVERSABLE:
-					gdal[i + nbLines * j] = 3.14;
+					value = 3.14; // arbitrary value, close to zero
 					break;
 				case DTM_LABEL_OBSTACLE:
-					gdal[i + nbLines * j] = std::numeric_limits<float>::infinity();
+					value = std::numeric_limits<float>::infinity();
 					break;
 				default:
 					assert(false);
 					break;
 			}
+
+			gdal[ i + nbLines * j ] =  value ;
 		}
 }//}}}
 

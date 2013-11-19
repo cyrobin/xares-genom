@@ -83,14 +83,16 @@ request Init
     input_info: 
         XARES_DTM_POSTER_NAME::"DTM poster's name",
         XARES_POM_POSTER_NAME::"POM Pos poster's name",
+
         XARES_MAX_NF::"Max number of frontiers to consider",
-        XARES_MIN_SIZE::"Minimal size of the frontiers to consider",
-        XARES_MIN_DIST::"Minimal dist to the frontiers to consider",
-        XARES_MAX_DIST::"Maximal dist to the frontiers to consider",
-        XARES_X_ORIGIN::"x origin of the bounded arae to explore",
-        XARES_Y_ORIGIN::"y origin of the bounded arae to explore",
-        XARES_HEIGHT_MAX::"maximal height of the bounded arae to explore",
-        XARES_WIDTH_MAX::"maximal width of the bounded arae to explore",
+        XARES_MIN_SIZE::"Minimal size of the frontiers to consider (meters)",
+        XARES_MIN_DIST::"Minimal dist to the frontiers to consider (meters)",
+        XARES_MAX_DIST::"Maximal dist to the frontiers to consider (meters)",
+        XARES_X0_AREA::"lesser x of the bounded area to explore (local frame)",
+        XARES_Y0_AREA::"lesser y of the bounded area to explore (local frame)",
+        XARES_HEIGHT_MAX::"maximal height of the bounded area to explore (meters)",
+        XARES_WIDTH_MAX::"maximal width of the bounded area to explore (meters)",
+
         XARES_DEFAULT_LOGDIR::"Log directory";
 
     fail_msg: CANNOT_CONNECT, FAILED_CREATION;

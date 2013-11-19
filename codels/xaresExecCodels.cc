@@ -143,17 +143,17 @@ xaresInitMain(xaresInitParams *initParams, int *report)
   std::cerr << "[xares] Init -- posters found." << std::endl;
 
   // Set internal parameters
-  SDI_F->internalParams.max_nf   = initParams->max_nf;
-  SDI_F->internalParams.min_size = initParams->min_size;
-  SDI_F->internalParams.min_dist = initParams->min_dist;
-  SDI_F->internalParams.max_dist = initParams->max_dist;
+  SDI_F->internalParams.max_nf     = initParams->max_nf     ;
+  SDI_F->internalParams.min_size   = initParams->min_size   ;
+  SDI_F->internalParams.min_dist   = initParams->min_dist   ;
+  SDI_F->internalParams.max_dist   = initParams->max_dist   ;
 
-  SDI_F->internalParams.x_origin   = initParams->x_origin  ;
-  SDI_F->internalParams.y_origin   = initParams->y_origin  ;
-  SDI_F->internalParams.height_max = initParams->height_max;
-  SDI_F->internalParams.width_max  = initParams->width_max ;
+  SDI_F->internalParams.x0_area    = initParams->x0_area    ;
+  SDI_F->internalParams.y0_area    = initParams->y0_area    ;
+  SDI_F->internalParams.height_max = initParams->height_max ;
+  SDI_F->internalParams.width_max  = initParams->width_max  ;
 
-  SDI_F->dump = GEN_FALSE;
+  SDI_F->dump = GEN_FALSE ;
 
   strncpy(SDI_F->logDir,initParams->logDir,XARES_MAX_LENGTH) ;
 
@@ -204,7 +204,7 @@ xaresFindGoalMain(int *report)
   gladys::weight_map wm;
   gdalwrap::raster& gdal = wm.setup_weight_band(poster->nbLines, poster->nbCols);
 
-  std::cerr << "[xares] (x0,y0,xS,yS) = ("
+  std::cerr << "[xares] (x0,y0,xSc,ySc) = ("
             << poster->xOrigin << ","
             << poster->yOrigin << ","
             << poster->xScale << ","
@@ -229,8 +229,8 @@ xaresFindGoalMain(int *report)
   /* load the planner */
   gettimeofday(&tv0, NULL);
   xares::xares xp( wm,
-         SDI_F->internalParams.x_origin,
-         SDI_F->internalParams.y_origin,
+         SDI_F->internalParams.x0_area,
+         SDI_F->internalParams.y0_area,
          SDI_F->internalParams.height_max,
          SDI_F->internalParams.width_max);
   gettimeofday(&tv1, NULL);
@@ -306,8 +306,8 @@ xaresFindGoalMain(int *report)
 
     // dump bounding of the area to explore
     dump_file << "bounded_area "
-              << SDI_F->internalParams.x_origin << " "
-              << SDI_F->internalParams.y_origin << " "
+              << SDI_F->internalParams.x0_area << " "
+              << SDI_F->internalParams.y0_area << " "
               << SDI_F->internalParams.height_max<< " "
               << SDI_F->internalParams.width_max << " "
               << std::endl;

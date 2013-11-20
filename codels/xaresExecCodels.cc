@@ -75,7 +75,7 @@ void fill_gdal(gdalwrap::raster& gdal, const DTM_LABEL_POSTER* poster){//{{{
 
 	int nbLines = poster->nbLines;
 	int nbCols = poster->nbCols;
-	const unsigned char* pu = poster->state;
+	const unsigned char* pu = (const unsigned char*) poster->state;
 	float value ;
 
 	for (size_t i = 0; i < nbLines; ++i) 

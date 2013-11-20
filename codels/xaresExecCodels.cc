@@ -149,7 +149,10 @@ xaresInitMain(xaresInitParams *initParams, int *report)
 
   // Set internal parameters
   SDI_F->internalParams.max_nf     = initParams->max_nf     ;
-  SDI_F->internalParams.min_size   = initParams->min_size   ;
+
+  SDI_F->internalParams.frontier_min_size   = initParams->frontier_min_size   ;
+  SDI_F->internalParams.frontier_max_size   = initParams->frontier_max_size   ;
+
   SDI_F->internalParams.min_dist   = initParams->min_dist   ;
   SDI_F->internalParams.max_dist   = initParams->max_dist   ;
 
@@ -247,7 +250,8 @@ xaresFindGoalMain(int *report)
   /* Set internal parameters for xares*/
   xp.set_params(
       SDI_F->internalParams.max_nf,
-      SDI_F->internalParams.min_size,
+      SDI_F->internalParams.frontier_min_size,
+      SDI_F->internalParams.frontier_max_size,
       SDI_F->internalParams.min_dist,
       SDI_F->internalParams.max_dist
   );
@@ -298,7 +302,8 @@ xaresFindGoalMain(int *report)
     // dump internal params
     dump_file << "internal_params "
               << SDI_F->internalParams.max_nf   << " "
-              << SDI_F->internalParams.min_size << " "
+              << SDI_F->internalParams.frontier_min_size << " "
+              << SDI_F->internalParams.frontier_max_size << " "
               << SDI_F->internalParams.min_dist << " "
               << SDI_F->internalParams.max_dist << " "
               << std::endl;

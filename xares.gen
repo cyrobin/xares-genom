@@ -85,7 +85,8 @@ request Init
         XARES_POM_POSTER_NAME::"POM Pos poster's name",
 
         XARES_MAX_NF::"Max number of frontiers to consider",
-        XARES_MIN_SIZE::"Minimal size of the frontiers to consider (meters)",
+        XARES_FRONTIER_MIN_SIZE::"Minimal size of the frontiers to consider (meters)",
+        XARES_FRONTIER_MAX_SIZE::"Maximal size of the frontiers to consider (meters)",
         XARES_MIN_DIST::"Minimal dist to the frontiers to consider (meters)",
         XARES_MAX_DIST::"Maximal dist to the frontiers to consider (meters)",
         XARES_X0_AREA::"lesser x of the bounded area to explore (local frame)",

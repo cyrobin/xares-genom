@@ -6,6 +6,7 @@
 
 #define XARES_MAX_NF 20
 #define XARES_MIN_SIZE 2.0
+#define XARES_MAX_SIZE 30.0
 #define XARES_MIN_DIST 2.5
 #define XARES_MAX_DIST 50.0
 #define XARES_X0_AREA -300.0
@@ -20,7 +21,8 @@
 typedef struct xaresInternalParams {
 
   unsigned int max_nf;
-  double min_size;
+  double frontier_min_size;
+  double frontier_max_size;
   double min_dist;
   double max_dist;
   double x0_area ;
@@ -34,7 +36,8 @@ typedef struct xaresInitParams {
   char pomPosterName[XARES_MAX_LENGTH];
 
   unsigned int max_nf;
-  double min_size;
+  double frontier_min_size;
+  double frontier_max_size;
   double min_dist;
   double max_dist;
   double x0_area ;

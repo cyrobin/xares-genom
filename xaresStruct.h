@@ -36,6 +36,7 @@ typedef struct xaresInitParams {
   char pomPosterName[XARES_MAX_LENGTH];
 
   unsigned int max_nf;
+  int pad1;
   double frontier_min_size;
   double frontier_max_size;
   double min_dist;
